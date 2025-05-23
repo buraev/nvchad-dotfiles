@@ -76,12 +76,6 @@ return {
 		end,
 	},
 	{
-		"neovim/nvim-lspconfig",
-		config = function()
-			require("configs.lspconfig")
-		end,
-	},
-	{
 		"windwp/nvim-ts-autotag",
 		event = "VeryLazy",
 		config = function()
@@ -172,6 +166,8 @@ return {
 		"folke/trouble.nvim",
 		lazy = false,
 		dependencies = { "nvim-tree/nvim-web-devicons" },
+		opts = {}, -- for default options, refer to the configuration section for custom setup.
+		cmd = "Trouble",
 	},
 
 	{ "akinsho/bufferline.nvim", opts = { options = { separator_style = "slope" } } },
@@ -437,62 +433,6 @@ return {
       },
     },
 	},
-
-	{
-		"neovim/nvim-lspconfig",
-		opts = {
-			diagnostics = { virtual_text = { prefix = "icons" } },
-			capabilities = {
-				workspace = {
-					didChangeWatchedFiles = {
-						dynamicRegistration = false,
-					},
-				},
-			},
-			servers = {
-				lua_ls = {
-					-- cmd = { "/home/folke/projects/lua-language-server/bin/lua-language-server" },
-					-- single_file_support = true,
-					settings = {
-						Lua = {
-							misc = {
-								-- parameters = { "--loglevel=trace" },
-							},
-							hover = { expandAlias = false },
-							type = {
-								castNumberToInteger = true,
-								inferParamType = true,
-							},
-							diagnostics = {
-								disable = { "incomplete-signature-doc", "trailing-space" },
-								-- enable = false,
-								groupSeverity = {
-									strong = "Warning",
-									strict = "Warning",
-								},
-								groupFileStatus = {
-									["ambiguity"] = "Opened",
-									["await"] = "Opened",
-									["codestyle"] = "None",
-									["duplicate"] = "Opened",
-									["global"] = "Opened",
-									["luadoc"] = "Opened",
-									["redefined"] = "Opened",
-									["strict"] = "Opened",
-									["strong"] = "Opened",
-									["type-check"] = "Opened",
-									["unbalanced"] = "Opened",
-									["unused"] = "Opened",
-								},
-								unusedLocalExclude = { "_*" },
-							},
-						},
-					},
-				},
-			},
-		},
-	},
-
 	{
 		"stevearc/conform.nvim",
 		optional = true,
