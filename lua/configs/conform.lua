@@ -1,19 +1,21 @@
 local options = {
-  formatters_by_ft = {
-    lua = { "stylua" },
-    css = { "prettier" },
-    html = { "prettier" },
-    javascript = { "prettier" },
-    typescript = { "prettier" },
-    typescriptreact = { "prettier" },
-    javascriptreact = { "prettier" },
-  },
+	formatters_by_ft = {
+		lua = { "stylua" },
 
-  format_on_save = {
-    -- These options will be passed to conform.format()
-    timeout_ms = 500,
-    lsp_fallback = true,
-  },
+		css = { "prettier" },
+		html = { "prettier" },
+		json = { "prettier" },
+
+		javascript = { "prettier", "eslint" },
+		javascriptreact = { "prettier", "eslint" },
+		typescript = { "prettier", "eslint" },
+		typescriptreact = { "prettier", "eslint" },
+	},
+
+	format_on_save = {
+		timeout_ms = 1000,
+		lsp_fallback = false,
+	},
 }
 
 require("conform").setup(options)

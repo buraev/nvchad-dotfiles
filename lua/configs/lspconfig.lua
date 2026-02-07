@@ -1,23 +1,20 @@
 local configs = require("nvchad.configs.lspconfig")
 
-local on_attach = configs.on_attach
-local capabilities = configs.capabilities
+local servers = { "html", "cssls", "ts_ls", "clangd", "gopls", "gradle_ls", "tailwindcss", "prismals" }
 
-local lspconfig = require("lspconfig")
-
--- if you just want default config for the servers then put them in a table
-local servers = { "html", "cssls", "ts_ls", "clangd", "gopls", "gradle_ls", "tailwindcss" }
-
-for _, lsp in ipairs(servers) do
-	lspconfig[lsp].setup({
-		on_attach = on_attach,
-		capabilities = capabilities,
+for _, server in ipairs(servers) do
+	local opts = {
+		on_attach = configs.on_attach,
+		capabilities = configs.capabilities,
 		commands = {
 			OrganizeImports = {
 				description = "Organize Imports",
 			},
 		},
-		settings = {
+	}
+
+	if server == "gopls" then
+		opts.settings = {
 			gopls = {
 				completeUnimported = true,
 				usePlaceholders = true,
@@ -25,7 +22,10 @@ for _, lsp in ipairs(servers) do
 					unusedparams = true,
 				},
 			},
-		},
-	})
-	lspconfig.prismals.setup({})
+		}
+	end
+
+	vim.lsp.config(server, opts)
 end
+
+vim.lsp.enable(servers)
