@@ -70,6 +70,12 @@ return {
         "go",
       },
     },
+    config = function(_, opts)
+      require("nvim-treesitter.configs").setup(opts)
+      -- master branch predates nvim 0.12's treesitter handler API; patch the
+      -- broken predicates/directives back in. See configs/treesitter-compat.lua
+      require("configs.treesitter-compat").setup()
+    end,
   },
   {
     -- The current block is marked by the snacks chunk guide now, so drop
