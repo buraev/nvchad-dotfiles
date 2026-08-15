@@ -31,7 +31,11 @@ M.base46 = {
 }
 
 M.ui = {
+  -- lualine draws the statusline now; see configs/lualine.lua. `theme` stays
+  -- because base46 still generates the St_* groups from it, and that is where
+  -- lualine reads its colours from.
   statusline = {
+    enabled = false,
     theme = "vscode_colored",
   },
 
