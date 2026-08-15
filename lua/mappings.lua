@@ -68,7 +68,25 @@ do
   map("n", "<leader>fz", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "telescope find in current buffer" })
   map("n", "<leader>cm", "<cmd>Telescope git_commits<CR>", { desc = "telescope git commits" })
   map("n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "telescope git status" })
-  map("n", "<leader>pt", "<cmd>Telescope terms<CR>", { desc = "telescope pick hidden term" })
+  -- was the nvchad "Telescope terms" extension: pick among live terminals,
+  -- including hidden ones. dressing.nvim renders the select.
+  map("n", "<leader>pt", function()
+    local terms = Snacks.terminal.list()
+    if #terms == 0 then
+      vim.notify("No terminals open", vim.log.levels.INFO)
+      return
+    end
+    vim.ui.select(terms, {
+      prompt = "Terminals",
+      format_item = function(t)
+        return vim.api.nvim_buf_get_name(t.buf)
+      end,
+    }, function(t)
+      if t then
+        t:show():focus()
+      end
+    end)
+  end, { desc = "pick hidden term" })
 
   map("n", "<leader>th", function()
     require("nvchad.themes").open()
@@ -87,24 +105,26 @@ do
 
   -- new terminals
   map("n", "<leader>h", function()
-    require("nvchad.term").new { pos = "sp" }
+    Snacks.terminal.open(nil, { win = { position = "bottom" } })
   end, { desc = "terminal new horizontal term" })
 
   map("n", "<leader>v", function()
-    require("nvchad.term").new { pos = "vsp" }
+    Snacks.terminal.open(nil, { win = { position = "right" } })
   end, { desc = "terminal new vertical term" })
 
-  -- toggleable
+  -- toggleable. snacks keys a terminal by cmd/cwd/env/count -- NOT by window
+  -- position -- so every toggle needs its own count or they collapse into one
+  -- shared terminal. Counts 1-3 belong to the C-\ / C-] / C-f maps below.
   map({ "n", "t" }, "<A-v>", function()
-    require("nvchad.term").toggle { pos = "vsp", id = "vtoggleTerm" }
+    Snacks.terminal.toggle(nil, { count = 5, win = { position = "right" } })
   end, { desc = "terminal toggleable vertical term" })
 
   map({ "n", "t" }, "<A-h>", function()
-    require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+    Snacks.terminal.toggle(nil, { count = 4, win = { position = "bottom" } })
   end, { desc = "terminal toggleable horizontal term" })
 
   map({ "n", "t" }, "<A-i>", function()
-    require("nvchad.term").toggle { pos = "float", id = "floatTerm" }
+    Snacks.terminal.toggle(nil, { count = 6, win = { position = "float" } })
   end, { desc = "terminal toggle floating term" })
 
   -- whichkey
@@ -193,25 +213,21 @@ map("n", "<leader>gf", ":DiffviewFileHistory<CR>", { desc = "Git File History" }
 map("n", "<leader>gc", ":DiffviewOpen HEAD~1<CR>", { desc = "Git Last Commit" })
 map("n", "<leader>gt", ":DiffviewToggleFile<CR>", { desc = "Git File History" })
 
--- Terminal
-map("n", "<C-]>", function()
-  require("nvchad.term").toggle { pos = "vsp", size = 0.4 }
-end, { desc = "Toogle Terminal Vertical" })
-map("n", "<C-\\>", function()
-  require("nvchad.term").toggle { pos = "sp", size = 0.4 }
-end, { desc = "Toogle Terminal Horizontal" })
-map("n", "<C-f>", function()
-  require("nvchad.term").toggle { pos = "float" }
-end, { desc = "Toogle Terminal Float" })
-map("t", "<C-]>", function()
-  require("nvchad.term").toggle { pos = "vsp" }
-end, { desc = "Toogle Terminal Vertical" })
-map("t", "<C-\\>", function()
-  require("nvchad.term").toggle { pos = "sp" }
-end, { desc = "Toogle Terminal Horizontal" })
-map("t", "<C-f>", function()
-  require("nvchad.term").toggle { pos = "float" }
-end, { desc = "Toogle Terminal Float" })
+-- Terminal. Counts 1-3 keep these three separate from the A-h/A-v/A-i pair
+-- above; snacks would otherwise reuse one terminal for all of them.
+local function term_vertical()
+  Snacks.terminal.toggle(nil, { count = 2, win = { position = "right", width = 0.4 } })
+end
+local function term_horizontal()
+  Snacks.terminal.toggle(nil, { count = 1, win = { position = "bottom", height = 0.4 } })
+end
+local function term_float()
+  Snacks.terminal.toggle(nil, { count = 3, win = { position = "float" } })
+end
+
+map({ "n", "t" }, "<C-]>", term_vertical, { desc = "Toogle Terminal Vertical" })
+map({ "n", "t" }, "<C-\\>", term_horizontal, { desc = "Toogle Terminal Horizontal" })
+map({ "n", "t" }, "<C-f>", term_float, { desc = "Toogle Terminal Float" })
 
 -- Basic
 
