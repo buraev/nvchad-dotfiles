@@ -1,0 +1,39 @@
+# AI tooling
+.omc/
+.claude/
+.aider*
+.cursor/
+
+# Neovim runtime / state
+plugin/
+spell/
+session/
+undo/
+shada/
+view/
+*.vim~
+tags
+
+# Lua
+luac.out
+*.luac
+*.rock
+.luarocks/
+.luacov
+
+# Editor / OS junk
+*.sw[a-p]
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# Local overrides / secrets
+.env
+.env.*
+*.local
+lua/custom/
