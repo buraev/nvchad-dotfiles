@@ -1,4 +1,4 @@
-local configs = require "nvchad.configs.lspconfig"
+local configs = require "configs.lsp"
 
 local servers = { "html", "cssls", "ts_ls", "clangd", "gopls", "gradle_ls", "tailwindcss", "prismals" }
 
