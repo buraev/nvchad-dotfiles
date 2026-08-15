@@ -15,12 +15,30 @@ local lazy_config = require "configs.lazy"
 
 -- load plugins
 require("lazy").setup({
+  -- What is left of NvChad: the theme generator and the UI module it needs.
+  -- The plugin list this used to `import` now lives in lua/plugins/core.lua,
+  -- and its options/mappings/autocmds/configs are ported into lua/.
   {
     "NvChad/NvChad",
     lazy = false,
     branch = "v2.5",
-    import = "nvchad.plugins",
   },
+  {
+    "nvchad/base46",
+    build = function()
+      require("base46").load_all_highlights()
+    end,
+  },
+  {
+    "nvchad/ui",
+    lazy = false,
+    config = function()
+      require "nvchad"
+    end,
+  },
+  "nvzone/volt",
+  "nvzone/menu",
+  { "nvzone/minty", cmd = { "Huefy", "Shades" } },
 
   { import = "plugins" },
 }, lazy_config)
