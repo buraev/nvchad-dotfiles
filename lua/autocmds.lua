@@ -41,6 +41,15 @@ autocmd("FileType", {
   end,
 })
 
+-- Came from nvchad.tabufline.lazyload: without it the quickfix buffer stays
+-- listed and shows up as a tab in the buffer line.
+autocmd("FileType", {
+  pattern = "qf",
+  callback = function()
+    vim.opt_local.buflisted = false
+  end,
+})
+
 -- Builds every parser listed in the nvim-treesitter spec's ensure_installed.
 vim.api.nvim_create_user_command("TSInstallAll", function()
   local spec = require("lazy.core.config").plugins["nvim-treesitter"]

@@ -216,13 +216,15 @@ return {
   },
 
   {
-    -- Would replace NvChad's tabufline, whose TbBufOn/TbBufOff are matched to
-    -- VS Code's tab.activeBackground/tab.inactiveBackground. Never loaded, so
-    -- nothing changes by saying so explicitly. Flip to true to switch, but the
-    -- tab colours would then need porting to bufferline's own groups.
+    -- Replaces NvChad's tabufline. Colours are ported in configs/bufferline,
+    -- which reads them back from the theme's Tb* groups rather than repeating
+    -- the VS Code tab.activeBackground/tab.inactiveBackground values here.
     "akinsho/bufferline.nvim",
-    enabled = false,
-    opts = { options = { separator_style = "slope" } },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    lazy = false,
+    config = function()
+      require("configs.bufferline").setup()
+    end,
   },
   {
     "folke/which-key.nvim",

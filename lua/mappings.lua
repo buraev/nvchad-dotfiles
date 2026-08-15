@@ -36,19 +36,16 @@ do
   -- global lsp mappings
   map("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP diagnostic loclist" })
 
-  -- tabufline
+  -- buffer line
   map("n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" })
 
-  map("n", "<tab>", function()
-    require("nvchad.tabufline").next()
-  end, { desc = "buffer goto next" })
+  map("n", "<tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "buffer goto next" })
+  map("n", "<S-tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "buffer goto prev" })
 
-  map("n", "<S-tab>", function()
-    require("nvchad.tabufline").prev()
-  end, { desc = "buffer goto prev" })
-
+  -- Snacks.bufdelete drops the buffer without collapsing the window layout,
+  -- which is what nvchad.tabufline.close_buffer did
   map("n", "<leader>x", function()
-    require("nvchad.tabufline").close_buffer()
+    Snacks.bufdelete.delete()
   end, { desc = "buffer close" })
 
   -- Comment
@@ -152,7 +149,7 @@ local map = vim.keymap.set
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save" })
 map("n", "<leader>cx", function()
-  require("nvchad.tabufline").closeAllBufs()
+  Snacks.bufdelete.all()
 end, { desc = "Close All Buffers" })
 
 map("n", "<leader>ft", "<cmd>TodoTelescope<CR>", { desc = "Find Todo" })

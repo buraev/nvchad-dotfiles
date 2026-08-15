@@ -34,6 +34,11 @@ M.ui = {
   statusline = {
     theme = "vscode_colored",
   },
+
+  -- bufferline.nvim draws the buffer line now; see configs/bufferline.lua
+  tabufline = {
+    enabled = false,
+  },
 }
 
 M.nvdash = {
