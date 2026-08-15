@@ -1,4 +1,60 @@
-require "nvchad.options"
+-- Was `require "nvchad.options"`; inlined so the config no longer depends on
+-- NvChad for its editor defaults. Values kept identical to NvChad v2.5.
+local opt = vim.opt
+local g = vim.g
+
+vim.o.laststatus = 3
+vim.o.showmode = false
+vim.o.splitkeep = "screen"
+
+vim.o.clipboard = "unnamedplus"
+vim.o.cursorline = true
+vim.o.cursorlineopt = "number" -- overridden to "both" further down
+
+-- Indenting
+vim.o.expandtab = true
+vim.o.shiftwidth = 2
+vim.o.smartindent = true
+vim.o.tabstop = 2
+vim.o.softtabstop = 2
+
+opt.fillchars = { eob = " " }
+vim.o.ignorecase = true
+vim.o.smartcase = true
+vim.o.mouse = "a"
+
+-- Numbers
+vim.o.number = true
+vim.o.numberwidth = 2
+vim.o.ruler = false
+
+-- disable nvim intro
+opt.shortmess:append "sI"
+
+vim.o.signcolumn = "yes"
+vim.o.splitbelow = true
+vim.o.splitright = true
+vim.o.timeoutlen = 400
+vim.o.undofile = true
+
+-- interval for writing swap file to disk, also used by gitsigns
+vim.o.updatetime = 250
+
+-- go to previous/next line with h,l,left arrow and right arrow
+-- when cursor reaches end/beginning of line
+opt.whichwrap:append "<>[]hl"
+
+-- disable some default providers
+g.loaded_node_provider = 0
+g.loaded_python3_provider = 0
+g.loaded_perl_provider = 0
+g.loaded_ruby_provider = 0
+
+-- add binaries installed by mason.nvim to path
+local is_windows = vim.fn.has "win32" ~= 0
+local sep = is_windows and "\\" or "/"
+local delim = is_windows and ";" or ":"
+vim.env.PATH = table.concat({ vim.fn.stdpath "data", "mason", "bin" }, sep) .. delim .. vim.env.PATH
 
 -- local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
 -- for type, icon in pairs(signs) do
