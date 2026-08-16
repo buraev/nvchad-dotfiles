@@ -128,9 +128,7 @@ return {
     end,
   },
 
-  {
-    "nvim-treesitter/nvim-treesitter",
-    event = { "BufReadPost", "BufNewFile" },
-    cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
-  },
+  -- nvim-treesitter itself is specced in plugins/init.lua: it sits on the
+  -- `main` branch, which does not support lazy-loading, so the load event and
+  -- command list NvChad set here would be wrong.
 }

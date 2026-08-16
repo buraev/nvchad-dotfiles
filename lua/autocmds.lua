@@ -34,10 +34,19 @@ autocmd({ "UIEnter", "BufReadPost", "BufNewFile" }, {
   end,
 })
 
+-- On the `main` branch nvim-treesitter no longer turns anything on for you:
+-- highlighting is vim.treesitter.start(), and indenting is its indentexpr.
+-- Together these replace master's `highlight`/`indent` module options.
 autocmd("FileType", {
   pattern = "*",
   callback = function()
-    pcall(vim.treesitter.start)
+    if not pcall(vim.treesitter.start) then
+      return
+    end
+    -- only where the language actually ships an indents query
+    if #vim.treesitter.query.get_files(vim.bo.filetype, "indents") > 0 then
+      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    end
   end,
 })
 

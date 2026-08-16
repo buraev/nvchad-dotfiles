@@ -49,15 +49,17 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter",
-    -- NvChad v2.5 drives the classic `nvim-treesitter.configs` API, which
-    -- only exists on master. The main branch dropped it, so ensure_installed
-    -- and highlight below were being ignored and no parser ever got built.
-    branch = "master",
-    -- overrides NvChad's ":TSUpdate | TSInstallAll", which builds every parser
+    -- master's predicate/directive handlers predate nvim 0.12's treesitter API
+    -- and blew up on every markdown buffer; its README says 0.12 is not
+    -- supported. main is the branch that targets 0.12. It dropped the
+    -- `nvim-treesitter.configs` API, so highlighting comes from the FileType
+    -- hook in lua/autocmds.lua calling vim.treesitter.start(), and indenting
+    -- from the indentexpr set there too.
+    branch = "main",
+    -- main does not support lazy-loading
+    lazy = false,
     build = ":TSUpdate",
     opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
       ensure_installed = {
         "vim",
         "lua",
@@ -68,13 +70,14 @@ return {
         "typescript",
         "javascript",
         "go",
+        -- the markdown pair is what master's broken handlers used to crash on
+        "markdown",
+        "markdown_inline",
       },
     },
     config = function(_, opts)
-      require("nvim-treesitter.configs").setup(opts)
-      -- master branch predates nvim 0.12's treesitter handler API; patch the
-      -- broken predicates/directives back in. See configs/treesitter-compat.lua
-      require("configs.treesitter-compat").setup()
+      require("nvim-treesitter").setup()
+      require("nvim-treesitter").install(opts.ensure_installed)
     end,
   },
   {
