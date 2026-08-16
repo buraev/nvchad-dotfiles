@@ -30,23 +30,10 @@ return {
       require "configs.lspconfig"
     end,
   },
-  {
-    "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = {
-        "lua-language-server",
-        "stylua",
-        "html-lsp",
-        "css-lsp",
-        "prettier",
-        "eslint-lsp",
-        "gopls",
-        "js-debug-adapter",
-        "ts_ls",
-        "tailwindcss-language-server",
-      },
-    },
-  },
+  -- The mason spec, and with it `ensure_installed`, lives in plugins/core.lua.
+  -- A second spec here could not work: core.lua sets `opts` as a function, and
+  -- a function `opts` replaces the merged table rather than extending it, so
+  -- whatever this one declared was dropped before mason.setup() ran.
   {
     "nvim-treesitter/nvim-treesitter",
     -- master's predicate/directive handlers predate nvim 0.12's treesitter API
@@ -141,32 +128,50 @@ return {
     end,
   },
   {
+    -- Was an adapter named `node2` shelling out to `node-debug2-adapter`. That
+    -- binary comes from vscode-node-debug2, which Microsoft archived years ago,
+    -- it was never installed, and the mason list asks for js-debug-adapter --
+    -- its successor -- instead. So the adapter is now js-debug's `pwa-node`,
+    -- which speaks the same DAP over a port. mxsdev/nvim-dap-vscode-js was the
+    -- old glue for that and is archived too; js-debug needs no wrapper.
     "mfussenegger/nvim-dap",
     config = function()
-      local ok, dap = pcall(require, "dap")
-      if not ok then
-        return
-      end
-      dap.configurations.typescript = {
-        {
-          type = "node2",
-          name = "node attach",
-          request = "attach",
-          program = "${file}",
-          cwd = vim.fn.getcwd(),
-          sourceMaps = true,
-          protocol = "inspector",
+      local dap = require "dap"
+
+      dap.adapters["pwa-node"] = {
+        type = "server",
+        host = "127.0.0.1",
+        port = "${port}",
+        executable = {
+          -- mason drops this in its bin dir, which options.lua puts on PATH
+          command = "js-debug-adapter",
+          args = { "${port}" },
         },
       }
-      dap.adapters.node2 = {
-        type = "executable",
-        command = "node-debug2-adapter",
-        args = {},
-      }
+
+      -- one attach + one launch per language; js-debug keys off `type`, so the
+      -- same pair works for plain js and for ts/tsx once source maps are on
+      for _, ft in ipairs { "javascript", "javascriptreact", "typescript", "typescriptreact" } do
+        dap.configurations[ft] = {
+          {
+            type = "pwa-node",
+            request = "attach",
+            name = "Attach to node process",
+            processId = require("dap.utils").pick_process,
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+          },
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch current file",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+          },
+        }
+      end
     end,
-    dependencies = {
-      "mxsdev/nvim-dap-vscode-js",
-    },
   },
   {
     "rcarriga/nvim-dap-ui",
@@ -242,9 +247,6 @@ return {
     enabled = true,
     opts = {
       preset = "helix",
-      debug = vim.uv.cwd():find "which%-key",
-      win = {},
-      spec = {},
     },
   },
 
@@ -341,7 +343,7 @@ return {
           diff = { builtin = false },
           git = { builtin = false },
         },
-        debug = { scores = false, leaks = false, explorer = false, files = false, proc = true },
+        debug = { scores = false, leaks = false, explorer = false, files = false, proc = false },
         sources = {
           explorer = {
             layout = {
@@ -400,14 +402,6 @@ return {
           end,
         },
       },
-      profiler = {
-        runtime = "~/projects/neovim/runtime/",
-        presets = {
-          on_stop = function()
-            Snacks.profiler.scratch()
-          end,
-        },
-      },
       indent = {
         -- indent-blankline already draws the plain guides, in VS Code's own
         -- colours, so take only the chunk overlay from snacks. chunk is a
@@ -420,88 +414,12 @@ return {
       -- UIEnter -- that would put a startup banner back after nvdash was
       -- switched off. Kept off on purpose.
       dashboard = { enabled = false },
-      gitbrowse = {
-        open = function(url)
-          vim.fn.system " ~/dot/config/hypr/scripts/quake"
-          vim.ui.open(url)
-        end,
-      },
     },
     -- stylua: ignore
     keys = {
       { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Open" },
-      { "<leader>dd", function() Snacks.picker.grep({search = "^(?!\\s*--).*\\b(bt|dd)\\(", args = {"-P"}, live = false, ft = "lua"}) end, desc = "Debug Searcher" },
-      { "<leader>t", function() Snacks.scratch({ icon = " ", name = "Todo", ft = "markdown", file = "~/dot/TODO.md" }) end, desc = "Todo List" },
-      {
-        "<leader>dpd",
-        desc = "Debug profiler",
-        function()
-          do return {
-            a = {
-              b = {
-                c =  123,
-              },
-            },
-          } end
-          if not Snacks.profiler.running() then
-            Snacks.notify("Profiler debug started")
-            Snacks.profiler.start()
-          else
-            Snacks.profiler.debug()
-            Snacks.notify("Profiler debug stopped")
-          end
-        end,
-      },
     },
   },
-  {
-    "stevearc/conform.nvim",
-    optional = true,
-    opts = {
-      formatters_by_ft = {
-        ["javascript"] = { "dprint", "prettier" },
-        ["javascriptreact"] = { "dprint" },
-        ["typescript"] = { "dprint", "prettier" },
-        ["typescriptreact"] = { "dprint" },
-      },
-      formatters = {
-        dprint = {
-          condition = function(_, ctx)
-            return vim.fs.find({ "dprint.json" }, { path = ctx.filename, upward = true })[1]
-          end,
-        },
-      },
-    },
-  },
-  {
-    "mfussenegger/nvim-lint",
-    opts = {
-      linters_by_ft = {
-        lua = { "selene", "luacheck" },
-      },
-      linters = {
-        selene = {
-          condition = function(ctx)
-            local root = LazyVim.root.get { normalize = true }
-            if root ~= vim.uv.cwd() then
-              return false
-            end
-            return vim.fs.find({ "selene.toml" }, { path = root, upward = true })[1]
-          end,
-        },
-        luacheck = {
-          condition = function(ctx)
-            local root = LazyVim.root.get { normalize = true }
-            if root ~= vim.uv.cwd() then
-              return false
-            end
-            return vim.fs.find({ ".luacheckrc" }, { path = root, upward = true })[1]
-          end,
-        },
-      },
-    },
-  },
-
   {
     "folke/ts-comments.nvim",
     -- had no trigger, so it never loaded: picks the right commentstring per
@@ -513,14 +431,6 @@ return {
       },
     },
   },
-  {
-    "zbirenbaum/copilot.lua",
-    optional = true,
-    opts = {
-      filetypes = { ["*"] = true },
-    },
-  },
-
   {
     "echasnovski/mini.align",
     opts = {},
@@ -557,14 +467,22 @@ return {
       vim.list_extend(opts.library, {
         { path = "${3rd}/luassert/library", words = { "assert" } },
         { path = "${3rd}/busted/library", words = { "describe" } },
+        -- lazydev pulls a library in only when a `words` pattern shows up in the
+        -- buffer, and it has no rule for `Snacks` on its own -- that rule came
+        -- from the LazyVim base spec. Without it mappings.lua reported eleven
+        -- "Undefined global `Snacks`", since the plugin sets that global at
+        -- runtime and nothing told LuaLS where its annotations live.
+        { path = "snacks.nvim", words = { "Snacks" } },
       })
     end,
   },
 
-  { "markdown-preview.nvim", enabled = false },
-
   {
+    -- Builds with deno and cannot start without it. deno is not on this machine,
+    -- so the build step failed and <leader>cp opened nothing; gate the whole
+    -- spec on the binary so the key is simply unmapped until deno is there.
     "toppair/peek.nvim",
+    cond = vim.fn.executable "deno" == 1,
     build = "deno task --quiet build:fast",
     opts = {
       theme = "light",

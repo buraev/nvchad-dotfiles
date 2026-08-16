@@ -76,16 +76,14 @@ M.defaults = function()
     end,
   })
 
+  -- No `workspace.library` here on purpose. lazydev.nvim owns it: it always
+  -- inserts $VIMRUNTIME itself and pulls the rest in per buffer, only for the
+  -- plugins that buffer actually mentions. Listing paths here as well made
+  -- LuaLS preload them eagerly on every attach, which is the pause before the
+  -- first diagnostics land.
   local lua_lsp_settings = {
     Lua = {
       runtime = { version = "LuaJIT" },
-      workspace = {
-        library = {
-          vim.fn.expand "$VIMRUNTIME/lua",
-          vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy",
-          "${3rd}/luv/library",
-        },
-      },
     },
   }
 

@@ -68,12 +68,15 @@ o.cursorlineopt = "both" -- to enable cursorline!
 
 vim.opt.relativenumber = true
 
-require("luasnip.loaders.from_vscode").lazy_load { paths = "~/.config/nvim/snippets" }
+-- The snippet loader that used to sit here pointed at ~/.config/nvim/snippets,
+-- a directory that does not exist, and requiring it from options.lua pulled
+-- LuaSnip (and nvim-cmp behind it) in at startup, undoing their InsertEnter
+-- trigger. Loading the directory is configs/luasnip.lua's job now.
 
 local sign_column_hl = vim.api.nvim_get_hl(0, { name = "SignColumn" })
 
--- "bg" here would mean "Normal's background", which does not exist when
--- base46 transparency is on -- nvim_set_hl then errors out and aborts init
+-- "bg" here would mean "Normal's background", which does not exist when the
+-- colourscheme runs transparent -- nvim_set_hl then errors out and aborts init
 local sign_column_bg = (sign_column_hl.bg ~= nil) and ("#%06x"):format(sign_column_hl.bg) or "NONE"
 local sign_column_ctermbg = (sign_column_hl.ctermbg ~= nil) and sign_column_hl.ctermbg or "Black"
 

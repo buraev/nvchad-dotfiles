@@ -1,7 +1,8 @@
 -- Was `require "nvchad.mappings"`; ported so the config no longer depends on
--- NvChad for its default keymaps. Kept in this order on purpose: the defaults
--- come first, so the personal maps further down still win where they overlap
--- (<leader>ds -> dap.continue, <leader>gt -> DiffviewToggleFile).
+-- NvChad for its default keymaps. The defaults come first and the personal maps
+-- further down are the ones that survive; where NvChad's default was silently
+-- overwritten it has been deleted outright rather than left in place, so
+-- which-key stops advertising a description that no longer matches the action.
 --
 -- Terminal and buffer-line maps below drive snacks.terminal and bufferline.
 -- The theme picker and cheatsheet maps went with nvchad/ui.
@@ -15,10 +16,9 @@ do
   map("i", "<C-j>", "<Down>", { desc = "move down" })
   map("i", "<C-k>", "<Up>", { desc = "move up" })
 
-  map("n", "<C-h>", "<C-w>h", { desc = "switch window left" })
-  map("n", "<C-l>", "<C-w>l", { desc = "switch window right" })
-  map("n", "<C-j>", "<C-w>j", { desc = "switch window down" })
-  map("n", "<C-k>", "<C-w>k", { desc = "switch window up" })
+  -- NvChad's plain <C-w>h/j/k/l window hops lived here. The TmuxNavigate maps
+  -- further down replace them and are strictly better: outside tmux the plugin
+  -- falls back to the same wincmd, inside it the jump crosses into tmux panes.
 
   map("n", "<Esc>", "<cmd>noh<CR>", { desc = "general clear highlights" })
 
@@ -29,11 +29,12 @@ do
   map("n", "<leader>rn", "<cmd>set rnu!<CR>", { desc = "toggle relative number" })
 
   map({ "n", "x" }, "<leader>fm", function()
-    require("conform").format { lsp_fallback = true }
+    require("conform").format { lsp_format = "fallback" }
   end, { desc = "general format file" })
 
-  -- global lsp mappings
-  map("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP diagnostic loclist" })
+  -- NvChad put diagnostic.setloclist on <leader>ds; the Debug section below
+  -- takes that key for dap.continue, and Trouble covers the diagnostic list
+  -- (<leader>qx / <leader>qw), so the loclist map is gone rather than shadowed.
 
   -- buffer line
   map("n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" })
@@ -63,7 +64,7 @@ do
   map("n", "<leader>fo", "<cmd>Telescope oldfiles<CR>", { desc = "telescope find oldfiles" })
   map("n", "<leader>fz", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "telescope find in current buffer" })
   map("n", "<leader>cm", "<cmd>Telescope git_commits<CR>", { desc = "telescope git commits" })
-  map("n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "telescope git status" })
+  map("n", "<leader>gs", "<cmd>Telescope git_status<CR>", { desc = "telescope git status" })
   -- was the nvchad "Telescope terms" extension: pick among live terminals,
   -- including hidden ones. dressing.nvim renders the select.
   map("n", "<leader>pt", function()
@@ -133,15 +134,6 @@ local map = vim.keymap.set
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
-
--- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
---
---
--- require "nvchad.mappings"
-
-local map = vim.keymap.set
-
-map("n", ";", ":", { desc = "CMD enter command mode" })
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save" })
 map("n", "<leader>cx", function()
   Snacks.bufdelete.all()
@@ -175,15 +167,10 @@ map(
 map("n", "<leader>ql", "<cmd>Trouble loclist toggle<cr>", { desc = "Location List (Trouble)" })
 map("n", "<leader>qt", "<cmd>Trouble qflist toggle<cr>", { desc = "Quickfix List (Trouble)" })
 
--- Tests
-map("n", "<leader>tt", function()
-  require("neotest").run.run()
-end, { desc = "Run nearest test" })
-map("n", "<leader>tf", function()
-  require("neotest").run.run(vim.fn.expand "%")
-end, { desc = "Run file test" })
-map("n", "<leader>to", ":Neotest output<CR>", { desc = "Show test output" })
-map("n", "<leader>ts", ":Neotest summary<CR>", { desc = "Show test summary" })
+-- Tests: <leader>tt/tf/to/ts drove neotest, which is not in the plugin list and
+-- never was, so every one of them threw "module 'neotest' not found". Bringing
+-- neotest back means picking adapters per language (jest/vitest/go/...), so the
+-- maps are gone until that call is made rather than left as four broken keys.
 
 -- Debug
 map("n", "<leader>du", function()
@@ -224,8 +211,5 @@ map({ "n", "t" }, "<C-f>", term_float, { desc = "Toogle Terminal Float" })
 -- Basic
 
 map("i", "jj", "<ESC>")
-map("i", "<C-g>", function()
-  return vim.fn["codeium#Accept"]()
-end, { expr = true })
-
--- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
+-- <C-g> called codeium#Accept(); codeium is not installed, so it only ever
+-- raised E117. Dropped -- copilot/codeium bring their own accept key back.
