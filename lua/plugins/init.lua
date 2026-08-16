@@ -420,6 +420,54 @@ return {
       { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Open" },
     },
   },
+
+  {
+    -- Speaks the same WebSocket MCP protocol as the official VS Code and
+    -- JetBrains extensions, so Claude reads the live buffer, the visual
+    -- selection and the LSP diagnostics instead of the file on disk.
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+
+    -- VeryLazy, not cmd/keys. The server writes ~/.claude/ide/<port>.lock when
+    -- the plugin loads, and `claude --ide` in the other pane discovers nvim
+    -- only through that file. Loading on a keypress would mean starting Claude
+    -- before touching a Claude key leaves it quietly unconnected.
+    event = "VeryLazy",
+
+    opts = {
+      -- Claude lives in its own tmux pane here, and this config already has six
+      -- snacks.terminal toggles (<C-\>, <C-]>, <C-f>, <A-h>, <A-v>, <A-i>) --
+      -- a seventh window inside nvim would earn nothing. "none" keeps the
+      -- server and every MCP tool while dropping the UI, which also makes the
+      -- terminal.* sizing options and :ClaudeCode/:ClaudeCodeFocus inert, so
+      -- neither is configured or mapped below.
+      terminal = { provider = "none" },
+      diff_opts = { layout = "vertical" },
+    },
+
+    init = function()
+      -- With provider = "none" the plugin has no window to focus after a send,
+      -- so hand focus back to the pane Claude is running in instead.
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "ClaudeCodeSendComplete",
+        callback = function()
+          if vim.env.TMUX then
+            vim.fn.system { "tmux", "select-pane", "-t", "{last}" }
+          end
+        end,
+      })
+    end,
+
+    keys = {
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "claude add buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "claude send selection" },
+      { "<leader>at", "<cmd>ClaudeCodeTreeAdd<cr>", desc = "claude add file under cursor" },
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "claude accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "claude deny diff" },
+      { "<leader>ai", "<cmd>ClaudeCodeStatus<cr>", desc = "claude connection status" },
+    },
+  },
+
   {
     "folke/ts-comments.nvim",
     -- had no trigger, so it never loaded: picks the right commentstring per

@@ -59,6 +59,22 @@ autocmd("FileType", {
   end,
 })
 
+-- `autoread` is already on by default in Neovim, but nothing ever asks whether
+-- the file changed -- so a buffer stays stale until something happens to
+-- trigger the check. Agents and formatters write files behind nvim's back
+-- (claudecode.nvim only routes some edits through its diff windows), so poll on
+-- the events where a rewrite has plausibly just happened.
+autocmd({ "FocusGained", "BufEnter", "TermClose", "TermLeave" }, {
+  group = vim.api.nvim_create_augroup("CheckFileChanged", { clear = true }),
+  callback = function()
+    -- argumentless checktime covers every loaded buffer, so this is worth
+    -- running from a terminal buffer too; it only throws in the command window
+    if vim.fn.getcmdwintype() == "" then
+      vim.cmd.checktime()
+    end
+  end,
+})
+
 -- Builds every parser listed in the nvim-treesitter spec's ensure_installed.
 vim.api.nvim_create_user_command("TSInstallAll", function()
   local spec = require("lazy.core.config").plugins["nvim-treesitter"]
