@@ -111,8 +111,6 @@ local function mutagen_status()
 end
 
 local function theme()
-  pcall(dofile, vim.g.base46_cache .. "statusline")
-
   local text = { fg = colour("StText", "fg"), bg = "NONE" }
   local cwd = { fg = colour("St_cwd", "fg"), bg = colour("St_cwd", "bg") }
 

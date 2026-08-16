@@ -68,8 +68,6 @@ M.diagnostic_config = function()
 end
 
 M.defaults = function()
-  -- base46's LSP highlight groups; goes away with the theme step
-  dofile(vim.g.base46_cache .. "lsp")
   M.diagnostic_config()
 
   vim.api.nvim_create_autocmd("LspAttach", {
@@ -84,7 +82,6 @@ M.defaults = function()
       workspace = {
         library = {
           vim.fn.expand "$VIMRUNTIME/lua",
-          vim.fn.stdpath "data" .. "/lazy/ui/nvchad_types",
           vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy",
           "${3rd}/luv/library",
         },

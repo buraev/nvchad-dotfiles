@@ -1,8 +1,6 @@
 -- Ported from NvChad v2.5 (nvchad/configs/telescope.lua) so the config owns its own plugin setup.
 -- Copied byte for byte; the Nerd Font glyphs below are the originals.
 
-dofile(vim.g.base46_cache .. "telescope")
-
 return {
   defaults = {
     prompt_prefix = "   ",
@@ -22,6 +20,5 @@ return {
     },
   },
 
-  extensions_list = { "themes", "terms" },
   extensions = {},
 }

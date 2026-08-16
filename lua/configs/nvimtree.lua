@@ -1,8 +1,6 @@
 -- Ported from NvChad v2.5 (nvchad/configs/nvimtree.lua) so the config owns its own plugin setup.
 -- Copied byte for byte; the Nerd Font glyphs below are the originals.
 
-dofile(vim.g.base46_cache .. "nvimtree")
-
 return {
   filters = { dotfiles = false },
   disable_netrw = true,

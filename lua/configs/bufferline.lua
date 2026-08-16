@@ -16,9 +16,6 @@ local function group(name)
 end
 
 function M.setup()
-  -- tabufline pulled these in lazily; nothing loads them for us any more
-  pcall(dofile, vim.g.base46_cache .. "tbline")
-
   local fill = group "TbFill"
   local on, off = group "TbBufOn", group "TbBufOff"
   local on_mod, off_mod = group "TbBufOnModified", group "TbBufOffModified"

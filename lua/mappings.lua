@@ -3,8 +3,8 @@
 -- come first, so the personal maps further down still win where they overlap
 -- (<leader>ds -> dap.continue, <leader>gt -> DiffviewToggleFile).
 --
--- Calls into nvchad.tabufline / nvchad.term / nvchad.themes are still here;
--- they are replaced by bufferline and snacks.terminal in later steps.
+-- Terminal and buffer-line maps below drive snacks.terminal and bufferline.
+-- The theme picker and cheatsheet maps went with nvchad/ui.
 do
   local map = vim.keymap.set
 
@@ -27,7 +27,6 @@ do
 
   map("n", "<leader>n", "<cmd>set nu!<CR>", { desc = "toggle line number" })
   map("n", "<leader>rn", "<cmd>set rnu!<CR>", { desc = "toggle relative number" })
-  map("n", "<leader>ch", "<cmd>NvCheatsheet<CR>", { desc = "toggle nvcheatsheet" })
 
   map({ "n", "x" }, "<leader>fm", function()
     require("conform").format { lsp_fallback = true }
@@ -84,10 +83,6 @@ do
       end
     end)
   end, { desc = "pick hidden term" })
-
-  map("n", "<leader>th", function()
-    require("nvchad.themes").open()
-  end, { desc = "telescope nvchad themes" })
 
   map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "telescope find files" })
   map(

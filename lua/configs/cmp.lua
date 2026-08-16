@@ -1,8 +1,6 @@
 -- Ported from NvChad v2.5 (nvchad/configs/cmp.lua) so the config owns its own plugin setup.
 -- Copied byte for byte; the Nerd Font glyphs below are the originals.
 
-dofile(vim.g.base46_cache .. "cmp")
-
 local cmp = require "cmp"
 
 local options = {

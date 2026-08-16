@@ -2,9 +2,6 @@
 -- kept as NvChad v2.5 had them (load events, commands, dependency sets), so
 -- removing the import changes nothing about when things load. The per-plugin
 -- option tables live in lua/configs/, ported byte for byte.
---
--- base46 is still the source of highlight groups here; it goes away with the
--- theme step, and the `dofile(vim.g.base46_cache .. ...)` calls with it.
 
 return {
   "nvim-lua/plenary.nvim",
@@ -12,7 +9,6 @@ return {
   {
     "nvim-tree/nvim-web-devicons",
     opts = function()
-      dofile(vim.g.base46_cache .. "devicons")
       return { override = require "icons.devicons" }
     end,
   },
@@ -25,13 +21,9 @@ return {
       scope = { char = "│", highlight = "IblScopeChar" },
     },
     config = function(_, opts)
-      dofile(vim.g.base46_cache .. "blankline")
-
       local hooks = require "ibl.hooks"
       hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
       require("ibl").setup(opts)
-
-      dofile(vim.g.base46_cache .. "blankline")
     end,
   },
 
@@ -48,7 +40,6 @@ return {
     keys = { "<leader>", "<c-w>", '"', "'", "`", "c", "v", "g" },
     cmd = "WhichKey",
     config = function(_, opts)
-      dofile(vim.g.base46_cache .. "whichkey")
       require("which-key").setup(opts)
     end,
   },
