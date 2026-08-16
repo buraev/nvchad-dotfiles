@@ -95,6 +95,14 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("rainbow-delimiters.setup").setup {
+        -- The html query marks the tag NAME as a delimiter, not just the angle
+        -- brackets, so <div>, <p> and <span> came out gold/orchid/blue by
+        -- nesting depth. That fights the theme twice over: it wants
+        -- entity.name.tag red (#e06c75) and meta.tag at plain foreground
+        -- (#abb2bf). Same problem the JSX rules had below, but html ships no
+        -- parens-only query to switch to, so turn the language off outright --
+        -- there is nothing left to colour once the tag rules are gone.
+        blacklist = { "html" },
         query = {
           [""] = "rainbow-delimiters",
           -- The default JSX query paints the tag NAME as a delimiter, so
